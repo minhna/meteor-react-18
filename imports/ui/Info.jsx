@@ -1,13 +1,19 @@
 import { Meteor } from "meteor/meteor";
 import React from "react";
 import { useTracker } from "meteor/react-meteor-data";
-import { LinksCollection } from "../api/links";
+import { LinksCollection } from "../api/links/links";
 
 export const Info = () => {
   const { loading, links } = useTracker(() => {
-    const sub = Meteor.subscribe("links");
+    if (Meteor.isClient) {
+      const sub = Meteor.subscribe("links");
+      return {
+        loading: !sub.ready(),
+        links: LinksCollection.find().fetch(),
+      };
+    }
     return {
-      loading: !sub.ready(),
+      loading: false,
       links: LinksCollection.find().fetch(),
     };
   }, []);
